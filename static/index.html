@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>原神螺旋深渊角色数据统计大屏</title>
+    <script type="text/javascript" src="js/jquery-2.2.1.min.js"></script>
+    <link rel="stylesheet" href="css/comon0.css">
+</head>
+<style>
+    /* 左上统计卡片 */
+    .stat-section {
+        padding: 5px 10px;
+    }
+    .stat-title {
+        color: #888;
+        font-size: 0.16rem;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .stat-item {
+        text-align: center;
+        flex: 1;
+    }
+    .stat-item .value {
+        font-size: 0.28rem;
+        color: #00ffcc;
+        font-family: electronicFont;
+        text-shadow: 0 0 10px rgba(0,255,204,.5);
+    }
+    .stat-item .label {
+        font-size: 0.12rem;
+        color: rgba(255,255,255,.4);
+    }
+    .info-text {
+        font-size: 0.12rem;
+        color: rgba(255,255,255,.4);
+        line-height: 1.6;
+        padding: 5px 0;
+    }
+    
+    /* 最热门角色和队伍展示 */
+    .hot-section {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        border-top: 1px solid rgba(255,255,255,.08);
+        margin-top: 8px;
+    }
+    .hot-item {
+        flex: 1;
+        background: rgba(40,40,40,.6);
+        border-radius: 6px;
+        padding: 8px;
+        border: 1px solid rgba(80,80,80,.5);
+    }
+    .hot-item-title {
+        font-size: 0.12rem;
+        color: #888;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+    #hotCharacter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    #hotCharacter img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #ffd700;
+    }
+    .hot-char-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 14px;
+        font-weight: bold;
+        border: 2px solid #ffd700;
+        text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    .hot-char-placeholder.star5 {
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
+        box-shadow: 0 0 10px rgba(255,215,0,.6);
+    }
+    .hot-char-placeholder.star4 {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #8b5cf6 100%);
+        border-color: #a855f7;
+        box-shadow: 0 0 10px rgba(168,85,247,.6);
+    }
+    .hot-char-info {
+        flex: 1;
+    }
+    .hot-char-name {
+        font-size: 0.14rem;
+        color: #fff;
+        font-weight: bold;
+    }
+    .hot-char-rate {
+        font-size: 0.11rem;
+        color: #ffcc00;
+    }
+    #hotTeam {
+        text-align: center;
+    }
+    .hot-team-avatars {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+    }
+    .hot-team-member {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #666;
+    }
+    .hot-team-member.star5 {
+        border-color: #ffd700;
+    }
+    .hot-team-member.star4 {
+        border-color: #a855f7;
+    }
+    .hot-team-member img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .hot-team-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 10px;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    .hot-team-placeholder.star5 {
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    }
+    .hot-team-placeholder.star4 {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+    }
+    .hot-team-rate {
+        font-size: 0.11rem;
+        color: #ffcc00;
+        margin-top: 4px;
+    }
+    
+    /* 左下角色展示区 - 上下结构 */
+    .character-section {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .character-header {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .character-header img {
+        width: 45px;
+        height: 45px;
+        border-radius: 20px;
+        border: 2px solid #555;
+        margin-right: 10px;
+    }
+    .character-header .char-info {
+        color: #ccc;
+    }
+    .character-header .char-name {
+        font-size: 0.18rem;
+        font-weight: bold;
+    }
+    .character-header .char-star {
+        font-size: 0.14rem;
+        color: #888;
+    }
+    /* 左右结构饼图区域 - 角色图像左 + 饼图右 */
+    .character-layout {
+        display: flex;
+        flex: 1;
+        height: calc(100% - 50px);
+    }
+    .character-avatar-area {
+        width: 35%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border-right: 1px solid rgba(80,80,80,.4);
+    }
+    .character-avatar-area img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid #00ccff;
+        margin-bottom: 10px;
+        object-fit: cover;
+        box-shadow: 0 0 15px rgba(0,204,255,.4);
+    }
+    .char-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border: 3px solid #00ccff;
+        text-shadow: 0 2px 4px rgba(0,0,0,.5);
+    }
+    .char-avatar-placeholder.star5 {
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255,215,0,.6);
+    }
+    .char-avatar-placeholder.star4 {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #8b5cf6 100%);
+        border-color: #a855f7;
+        box-shadow: 0 0 20px rgba(168,85,247,.6);
+    }
+    .character-avatar-area .char-name {
+        font-size: 0.18rem;
+        color: #fff;
+        font-weight: bold;
+        text-align: center;
+    }
+    .character-avatar-area .char-star {
+        font-size: 0.14rem;
+        color: #ffcc00;
+    }
+    .constellation-pie-area {
+        width: 65%;
+        min-height: 200px;
+    }
+    
+    /* 中间热门队伍滚动大屏 */
+    .team-scroll-container {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+        background: rgba(20,20,20,.8);
+        border-radius: 8px;
+    }
+    .team-scroll-header {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(135deg, rgba(50,50,50,.9) 0%, rgba(30,30,30,.9) 100%);
+        padding: 10px 15px;
+        text-align: center;
+        font-size: 0.2rem;
+        color: #888;
+        font-weight: bold;
+        z-index: 10;
+        border-bottom: 1px solid rgba(80,80,80,.5);
+    }
+    .team-scroll-list {
+        position: absolute;
+        width: 100%;
+        animation: teamScrollUp 120s linear infinite;
+        padding: 10px 0;
+    }
+    .team-scroll-list:hover {
+        animation-play-state: paused;
+    }
+    @keyframes teamScrollUp {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
+    }
+    .team-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        margin: 8px 15px;
+        background: rgba(40,40,40,.6);
+        border-radius: 8px;
+        border: 1px solid rgba(80,80,80,.4);
+        transition: all 0.3s;
+    }
+    .team-item:hover {
+        background: rgba(60,60,60,.8);
+        border-color: rgba(100,100,100,.6);
+        transform: scale(1.02);
+    }
+    .team-rank {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4a4a4a 0%, #333 100%);
+        color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.14rem;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+    .team-item:nth-child(1) .team-rank,
+    .team-item:nth-child(2) .team-rank { /* 复制后的第一名 */
+        background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+        color: #1a1a1a;
+    }
+    .team-item:nth-child(2) .team-rank,
+    .team-item:nth-child(3) .team-rank {
+        background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+        color: #1a1a1a;
+    }
+    .team-item:nth-child(3) .team-rank,
+    .team-item:nth-child(4) .team-rank {
+        background: linear-gradient(135deg, #cd7f32 0%, #b06a28 100%);
+        color: #1a1a1a;
+    }
+    .team-members {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+    }
+    .team-member {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #555;
+        transition: transform 0.3s;
+    }
+    .team-member:hover {
+        transform: scale(1.1);
+    }
+    .team-member.star5 {
+        border-color: #ffd700;
+        box-shadow: 0 0 10px rgba(255,215,0,.4);
+    }
+    .team-member.star4 {
+        border-color: #a855f7;
+        box-shadow: 0 0 10px rgba(168,85,247,.4);
+    }
+    .team-member img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .team-member-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    .team-member-placeholder.star5 {
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
+    }
+    .team-member-placeholder.star4 {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #8b5cf6 100%);
+    }
+    .team-stats {
+        text-align: right;
+        margin-left: 15px;
+    }
+    .team-rate {
+        font-size: 0.22rem;
+        color: #00ffcc;
+        font-family: electronicFont;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(0,255,204,.5);
+    }
+    .team-label {
+        font-size: 0.11rem;
+        color: rgba(255,255,255,.4);
+    }
+    
+    /* 右上滚动列表 - 慢速滚动 */
+    .scroll-container {
+        height: calc(100% - 30px);
+        overflow: hidden;
+        position: relative;
+    }
+    .scroll-list {
+        position: absolute;
+        width: 100%;
+        animation: scrollUp 120s linear infinite; /* 更慢速滚动 */
+    }
+    .scroll-list:hover {
+        animation-play-state: paused; /* 悬停暂停 */
+    }
+    .scroll-item {
+        display: flex;
+        align-items: center;
+        padding: 6px 8px;
+        border-bottom: 1px solid rgba(80,80,80,.3);
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .scroll-item:hover {
+        background: rgba(60,60,60,.6);
+    }
+    .scroll-item img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 8px;
+        background: rgba(40,40,40,.8);
+    }
+    .scroll-item .info {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        color: rgba(255,255,255,.6);
+        font-size: 0.12rem;
+    }
+    .scroll-item .info span {
+        flex: 1;
+        text-align: center;
+    }
+    .scroll-header {
+        display: flex;
+        padding: 6px 8px;
+        background: rgba(50,50,50,.8);
+        color: #888;
+        font-size: 0.12rem;
+    }
+    .scroll-header span {
+        flex: 1;
+        text-align: center;
+    }
+    .scroll-header span:first-child {
+        width: 40px;
+        flex: none;
+    }
+    @keyframes scrollUp {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
+    }
+    
+    /* 涨跌幅标识 */
+    .up { color: #ff4757 !important; }
+    .down { color: #2ed573 !important; }
+    .flat { color: #ffa502 !important; }
+    
+    /* 默认头像占位 - 5星金色渐变 */
+    .avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 8px;
+        text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    .avatar-placeholder.star5 {
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
+        box-shadow: 0 0 8px rgba(255,215,0,.6);
+    }
+    .avatar-placeholder.star4 {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #8b5cf6 100%);
+        box-shadow: 0 0 8px rgba(168,85,247,.6);
+    }
+    /* 使用率高亮显示 */
+    .use-rate-highlight {
+        color: #00ffcc !important;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(0,255,204,.6);
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $(".loading").fadeOut()
+    })
+    $(document).ready(function () {
+        var whei = $(window).width()
+        $("html").css({fontSize: whei / 20})
+        $(window).resize(function () {
+            var whei = $(window).width()
+            $("html").css({fontSize: whei / 20})
+        });
+    });
+</script>
+<body>
+<div>
+    <div class="canvas" style="opacity: 0; display: none;">
+        <iframe frameborder="0" src="js/index.html" style="width: 100%; height: 100%"></iframe>
+    </div>
+    <div class="loading">
+        <div class="loadbox"><img src="picture/loading.gif"> 页面加载中...</div>
+    </div>
+    <div class="head">
+        <div class="welcome-text">向着星辰与深渊！欢迎来到冒险家协会——旅行者</div>
+        <h1>原神螺旋深渊角色数据统计大屏</h1>
+        <div class="weather"><span id="showTime"></span></div>
+        <script>
+            var t = null;
+            t = setTimeout(time, 1000);
+            function time() {
+                clearTimeout(t);
+                dt = new Date();
+                var y = dt.getFullYear();
+                var mt = dt.getMonth() + 1;
+                var day = dt.getDate();
+                var h = dt.getHours();
+                var m = dt.getMinutes();
+                var s = dt.getSeconds();
+                document.getElementById("showTime").innerHTML = y + "年" + mt + "月" + day + "日 " + h + "时" + m + "分" + s + "秒";
+                t = setTimeout(time, 1000);
+            }
+        </script>
+    </div>
+    <div class="mainbox">
+        <ul class="clearfix">
+            <!-- 左侧 -->
+            <li>
+                <!-- 左上：系统信息和统计数据 -->
+                <div class="boxall" style="height: 4.2rem">
+                    <div class="alltitle" id="mainTitle">6.2深渊使用率统计</div>
+                    <div class="allnav">
+                        <div class="stat-section">
+                            <div class="stat-row">
+                                <div class="stat-item">
+                                    <div class="value" id="visitCount">0</div>
+                                    <div class="label">访问量</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="value" id="totalCharacters">0</div>
+                                    <div class="label">角色总数</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="value" id="topOwn">0</div>
+                                    <div class="label">有效样本</div>
+                                </div>
+                            </div>
+                            <!-- 角色分布扇形图 -->
+                            <div id="starPieChart" style="width:100%;height:100px;"></div>
+                            <!-- 最热门角色和队伍展示 -->
+                            <div class="hot-section">
+                                <div class="hot-item">
+                                    <div class="hot-item-title">最热门角色</div>
+                                    <div id="hotCharacter"></div>
+                                </div>
+                                <div class="hot-item">
+                                    <div class="hot-item-title">最热门队伍</div>
+                                    <div id="hotTeam"></div>
+                                </div>
+                            </div>
+                            <div class="info-text" id="tipsInfo"></div>
+                        </div>
+                    </div>
+                    <div class="boxfoot"></div>
+                </div>
+                <!-- 左下：角色图像（左）+ 命座持有率饼图（右） -->
+                <div class="boxall" style="height: 5rem">
+                    <div class="alltitle">角色命座持有率分析</div>
+                    <div class="allnav">
+                        <div class="character-section">
+                            <div class="character-header" style="border-bottom: none; padding: 5px 10px;">
+                                <div class="char-star" id="charStar"></div>
+                            </div>
+                            <!-- 角色图像（左）+ 饼图（右） -->
+                            <div class="character-layout">
+                                <div class="character-avatar-area">
+                                    <div id="charAvatarArea"></div>
+                                    <div class="char-name" id="charName">加载中...</div>
+                                </div>
+                                <div class="constellation-pie-area" id="constellation-pie"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="boxfoot"></div>
+                </div>
+            </li>
+            <!-- 中间 - 热门队伍滚动大屏 -->
+            <li>
+                <div class="boxall" style="height: 9.35rem">
+                    <div class="team-scroll-container">
+                        <div class="team-scroll-header">热门队伍排行榜</div>
+                        <div class="scroll-container" style="height: calc(100% - 40px);">
+                            <div class="team-scroll-list" id="teamScrollList"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <!-- 右侧 -->
+            <li>
+                <!-- 右上：角色排行滚动列表 -->
+                <div class="boxall" style="height:4.2rem">
+                    <div class="alltitle">角色使用率排行榜</div>
+                    <div class="allnav">
+                        <div class="scroll-header">
+                            <span style="width:50px">头像</span>
+                            <span>角色</span>
+                            <span>登场数</span>
+                            <span>持有数</span>
+                            <span>持有率</span>
+                            <span>使用率</span>
+                        </div>
+                        <div class="scroll-container" id="scrollContainer">
+                            <div class="scroll-list" id="scrollList"></div>
+                        </div>
+                    </div>
+                    <div class="boxfoot"></div>
+                </div>
+                <!-- 右下：使用率变化图表 -->
+                <div class="boxall" style="height: 5rem">
+                    <div class="alltitle">角色使用率变化趋势</div>
+                    <div class="allnav" id="echart4"></div>
+                    <div class="boxfoot"></div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="back"></div>
+
+
+</div>
+<!-- 核心库 -->
+<script type="text/javascript" src="js/echarts.min.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<!-- 地图相关 -->
+<script type="text/javascript" src="js/china.js"></script>
+<script type="text/javascript" src="js/area_echarts.js"></script>
+<!-- 模块化JS -->
+<script type="text/javascript" src="js/modules/config.js"></script>
+<script type="text/javascript" src="js/modules/utils.js"></script>
+<script type="text/javascript" src="js/modules/left-top.js"></script>
+<script type="text/javascript" src="js/modules/left-bottom.js"></script>
+<script type="text/javascript" src="js/modules/right-top.js"></script>
+<script type="text/javascript" src="js/modules/right-bottom.js"></script>
+<script type="text/javascript" src="js/modules/center.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>

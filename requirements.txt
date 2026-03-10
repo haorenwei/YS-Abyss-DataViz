@@ -1,0 +1,5 @@
+Flask==2.3.3
+pymysql==1.1.0
+flask-sqlalchemy==3.1.1  # ORM工具，简化数据库操作
+python-dotenv==1.0.0     # 环境变量管理（可选，增强安全性）
+flask-cors==4.0.0        # 跨域访问支持
