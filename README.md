@@ -1,88 +1,112 @@
-原神螺旋深渊角色数据统计大屏
+# 原神螺旋深渊角色数据统计大屏
 
-向着星辰与深渊 —— 一个基于 Flask + MySQL + ECharts 的游戏数据可视化大屏系统，展示《原神》深渊角色使用率、命座分布与热门队伍数据。
+> 向着星辰与深渊 —— 一个基于 **Flask + MySQL + ECharts** 的游戏数据可视化大屏系统，展示《原神》深渊角色使用率、命座分布与热门队伍数据。
 
-📷 项目预览
+---
+
+## 📷 项目预览
+
 <img width="1726" alt="dashboard-preview" src="https://github.com/user-attachments/assets/2bb8eb44-2f10-41e0-b1ea-d7e0659ed9b6" />
-📖 项目简介
 
-本项目是一个为 《原神》玩家与游戏内容创作者设计的数据可视化系统。
+---
 
-系统通过 ETL 数据处理流程对深渊角色数据进行清洗、分析，并在一个仿 数据驾驶舱（Data Dashboard） 风格的大屏中展示关键指标，例如：
+# 📖 项目简介
 
-角色使用率排行
+本项目是一个为 **《原神》玩家与游戏内容创作者**设计的数据可视化系统。
 
-命座分布统计
+系统通过 **ETL 数据处理流程**对深渊角色数据进行清洗、分析，并在一个仿 **数据驾驶舱（Data Dashboard）** 风格的大屏中展示关键指标，例如：
 
-热门深渊队伍组合
+- 角色使用率排行
+- 命座分布统计
+- 热门深渊队伍组合
+- 角色使用趋势变化
 
-角色使用趋势变化
+后端采用 **Flask 提供 RESTful API**，前端使用 **ECharts 实现数据可视化图表**，整体界面适配大屏设备和不同分辨率。
 
-后端采用 Flask 提供 RESTful API，前端使用 ECharts 实现数据可视化图表，整体界面适配大屏设备和不同分辨率。
+---
 
-🛠 技术栈
-层级	技术
-前端	HTML5、CSS3、jQuery、ECharts 5.x
-自适应	flexible.js（REM 适配）
-后端	Python、Flask
-ORM	Flask-SQLAlchemy
-数据库	MySQL 8.0
-数据处理	Python ETL 脚本
-部署	Gunicorn + Nginx（可选）
-📂 项目结构
+# 🛠 技术栈
+
+| 层级 | 技术 |
+|---|---|
+| 前端 | HTML5、CSS3、jQuery、ECharts 5.x |
+| 自适应 | flexible.js（REM 适配） |
+| 后端 | Python、Flask |
+| ORM | Flask-SQLAlchemy |
+| 数据库 | MySQL 8.0 |
+| 数据处理 | Python ETL 脚本 |
+| 部署 | Gunicorn + Nginx（可选） |
+
+---
+
+# 📂 项目结构
+
+
 YuanShen
 │
-├── app                 # Flask 后端应用
-│   ├── models          # 数据模型 (SQLAlchemy)
-│   └── api             # API 接口蓝图
+├── app # Flask 后端应用
+│ ├── models # 数据模型 (SQLAlchemy)
+│ └── api # API 接口蓝图
 │
-├── static              # 前端资源
-│   ├── js
-│   │   └── modules     # 图表模块 / 数据请求模块
-│   └── index.html      # 大屏主页面
+├── static # 前端资源
+│ ├── js
+│ │ └── modules # 图表模块 / 数据请求模块
+│ └── index.html # 大屏主页面
 │
-├── Script              # 数据处理脚本 (ETL)
+├── Script # 数据处理脚本 (ETL)
 │
-├── Data                # 原始数据文件
+├── Data # 原始数据文件
 │
-├── run.py              # Flask 启动入口
+├── run.py # Flask 启动入口
 │
-└── requirements.txt    # Python 依赖
-🧱 系统架构
+└── requirements.txt # Python 依赖
 
-系统采用经典 四层架构设计：
+
+---
+
+# 🧱 系统架构
+
+系统采用经典 **四层架构设计**：
+
 
 用户访问层
-     │
+│
 浏览器 / 大屏终端
-     │
+│
 前端展示层
 HTML + CSS + jQuery + ECharts
-     │
+│
 后端服务层
 Flask + RESTful API + SQLAlchemy
-     │
+│
 数据持久层
 MySQL 8.0
-🔄 数据处理流程（ETL）
 
-数据处理流程如下：
 
-1️⃣ 数据采集
+---
+
+# 🔄 数据处理流程（ETL）
+
+## 1️⃣ 数据采集
 
 原始数据来源：
 
-提瓦特小助手
+- **提瓦特小助手**
+- https://www.yshelper.com/
 
-https://www.yshelper.com/
+数据文件：
 
-数据格式：
 
 shen_yuan.json
-2️⃣ 数据清洗
 
-执行 ETL 脚本：
 
+---
+
+## 2️⃣ 数据清洗
+
+运行 ETL 脚本：
+
+```bash
 python Script/purify.py
 
 主要处理：
@@ -95,12 +119,12 @@ python Script/purify.py
 
 主键冲突处理
 
-生成清洗数据：
+生成清洗后的数据：
 
 purified_character_data.json
 3️⃣ 数据入库
 
-通过 SQLAlchemy ORM 将数据写入 MySQL 数据库。
+通过 SQLAlchemy ORM 将清洗后的数据写入 MySQL 数据库。
 
 4️⃣ 数据可视化
 
@@ -108,7 +132,7 @@ purified_character_data.json
 
 📡 API 接口设计
 
-系统遵循 RESTful API 规范，返回 JSON 数据。
+系统遵循 RESTful API 规范，返回 JSON 格式数据。
 
 方法	接口	功能
 GET	/api/character/list	获取全部角色信息
@@ -165,11 +189,11 @@ JSON 数据返回
 
 角色使用率排行
 
-点击查看详情
+点击查看角色详情
 
 6️⃣ 右下趋势区
 
-使用率变化
+使用率变化趋势
 
 柱状图 + 折线图
 
@@ -245,7 +269,7 @@ pip install -r requirements.txt
 
 yuanshen
 
-修改配置：
+修改配置文件：
 
 app/config.py
 
@@ -256,7 +280,7 @@ python Script/purify.py
 5️⃣ 启动服务
 python run.py
 
-访问：
+访问地址：
 
 http://127.0.0.1:5000
 💡 项目价值
@@ -292,7 +316,7 @@ ETL 数据处理流程
 
 为内容创作者提供 高质量数据素材
 
-为游戏社区提供 可视化展示方案
+为游戏社区提供 美观的数据展示方案
 
 愿此行，终抵群星。
 
