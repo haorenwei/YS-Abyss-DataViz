@@ -101,7 +101,7 @@ MySQL 8.0
 运行 ETL 脚本：
 
 ```bash
-python Script/purify.py
+python Script/purify_character_data.py
 ```
 
 主要处理：
@@ -118,6 +118,9 @@ python Script/purify.py
 ### 3️⃣ 数据入库
 
 通过 SQLAlchemy ORM 将清洗后的数据写入 MySQL 数据库。
+```bash
+python Script/json_to_sql.py
+```
 
 ### 4️⃣ 数据可视化
 
